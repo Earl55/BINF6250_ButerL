@@ -1,0 +1,144 @@
+---
+title: "Project 09: Forward, Backward, and Forward-Backward, HMM"
+author: "Little Butler"
+date: "`r format(Sys.time(), '%Y%m%d')`"
+output:
+  github_document:
+    html_preview: false
+    toc: true
+    toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+library('reticulate')
+reticulate::use_condaenv(condaenv = "r-reticulate")
+```
+
+## Viterbi ( Hidden Markov Model)
+
+The basis of this project is on Hidden Markov models and Markov chains. Based on observation data we try to gather predictions on hidden states.
+An applicable example of this in biology is DNA sequences and CpG islands aas the hidden states. CpG islands are groups of methylated (silences, the genes won't be expressed) pieces of DNA compared to non-methylated.
+Going from initial state (observed) to second state or transition state and the product of probalities calculated between from state to state is the basis of this assignment.
+
+
+```{python}
+def forward(obs, init_probs, trans_probs, emit_probs):
+
+    # get the unique hidden states
+    hidden_states = list(init_probs.keys())
+
+    forward_algo_probs = []  # stores the probabilites for each step in forward algo
+
+    # first probs. Initialization
+    forward_algo_probs.append({})  # store an empty dict inside the empty list
+    for h_state in hidden_states:  # iterate through the hidden states list of keys
+
+        first_obs = obs[0]  # access the dict which is the first element
+        state_prob = init_probs[h_state] * emit_probs[h_state][first_obs]
+        forward_algo_probs[0][h_state] = state_prob
+    
+    # iterate through the observations starting at 1 until the end
+    for i, step_observation in enumerate(obs[1:], 1):
+        
+        forward_algo_probs.append({})
+
+        for current_state in hidden_states:
+
+            possible_prev_state_paths = []
+
+            for prev_state in hidden_states:
+                state_prob = (forward_algo_probs[i-1][prev_state] * trans_probs[prev_state][current_state] * 
+                              emit_probs[current_state][step_observation])
+                possible_prev_state_paths.append(state_prob)
+            
+            forward_algo_probs[i][current_state] = sum(possible_prev_state_paths)
+
+    return forward_algo_probs
+
+```
+
+
+## Backaward
+
+
+```{python}
+def backward(obs, init_probs, trans_probs, emit_probs):
+
+    # get the unique hidden states
+    hidden_states = list(init_probs.keys())
+
+    backward_algo_probs = []  # stores the probabilites for each step in forward algo
+
+    # first probs. Initialization
+    backward_algo_probs.append({})  # store an empty dict inside the empty list
+    for h_state in hidden_states:  # iterate through the hidden states list of keys
+        backward_algo_probs[0][h_state] = 1
+    
+    # iterate through the observations starting at 1 until the end
+    for i, step_observation in enumerate(obs[-2::-1]):
+        
+        backward_algo_probs.insert(0, {})
+
+        for current_state in hidden_states:
+
+            possible_prev_state_paths = []
+
+            for prev_state in hidden_states:
+                state_prob = (backward_algo_probs[1][prev_state] * trans_probs[prev_state][current_state] * 
+                              emit_probs[current_state][step_observation])
+                possible_prev_state_paths.append(state_prob)
+            
+            backward_algo_probs[0][current_state] = sum(possible_prev_state_paths)
+    
+    # return best_hidden_sequence
+    return backward_algo_probs
+
+```
+
+
+## Example Observation
+
+```{}python
+def backward(obs, init_probs, trans_probs, emit_probs):
+
+    # get the unique hidden states
+    hidden_states = list(init_probs.keys())
+
+    backward_algo_probs = []  # stores the probabilites for each step in forward algo
+
+    # first probs. Initialization
+    backward_algo_probs.append({})  # store an empty dict inside the empty list
+    for h_state in hidden_states:  # iterate through the hidden states list of keys
+        backward_algo_probs[0][h_state] = 1
+    
+    # iterate through the observations starting at 1 until the end
+    for i, step_observation in enumerate(obs[-2::-1]):
+        
+        backward_algo_probs.insert(0, {})
+
+        for current_state in hidden_states:
+
+            possible_prev_state_paths = []
+
+            for prev_state in hidden_states:
+                state_prob = (backward_algo_probs[1][prev_state] * trans_probs[prev_state][current_state] * 
+                              emit_probs[current_state][step_observation])
+                possible_prev_state_paths.append(state_prob)
+            
+            backward_algo_probs[0][current_state] = sum(possible_prev_state_paths)
+    
+    # return best_hidden_sequence
+    return backward_algo_probs
+
+```
+
+
+## Example with FOrward
+
+## forward("RGB", init_probs, trans_probs, emit_probs)
+
+## Output
+#[{'S': 0.06, 'H': 0.32000000000000006},
+# {'S': 0.06800000000000002, 'H': 0.021000000000000005},
+# {'S': 0.028000000000000008, 'H': 0.003300000000000001}]
