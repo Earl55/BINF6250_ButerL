@@ -9,10 +9,11 @@ Some pseudocode here
 ```
 
 # Successes
-Description of the team's learning points
+This project got easier when it came to understanding the algorithm as a whole, for both Viterbi and Forward, Backward, FB.
+From thinking of an example observation with hats and happy/sad. It is all about following along and keeping track with where the probalities come from.
 
 # Struggles
-Description of the stumbling blocks the team experienced
+I kept confusing myself initiallay with what to ultply and what probalities to add (for FOrward/Backward)
 
 # Personal Reflections
 ## Group Leader
