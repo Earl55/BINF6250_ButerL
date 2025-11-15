@@ -142,3 +142,29 @@ def backward(obs, init_probs, trans_probs, emit_probs):
 #[{'S': 0.06, 'H': 0.32000000000000006},
 # {'S': 0.06800000000000002, 'H': 0.021000000000000005},
 # {'S': 0.028000000000000008, 'H': 0.003300000000000001}]
+
+
+
+## Foward-Backward Joint
+
+```{python}
+def forward_backward(obs, init_probs, trans_probs, emit_probs):
+
+    forward_probs = forward(obs, init_probs, trans_probs, emit_probs)
+    backward_probs = backward(obs, init_probs, trans_probs, emit_probs)
+
+    hidden_states = list(init_probs.keys())
+
+    forward_backward_probs = []
+
+    for i, (seq_fwd_prob, seq_bwd_prob) in enumerate(zip(forward_probs, backward_probs)):
+
+        prob_sum = sum([seq_fwd_prob[s] * seq_bwd_prob[s] for s in hidden_states])
+        norm_probs = {s: (seq_fwd_prob[s] * seq_bwd_prob[s])/prob_sum for s in hidden_states}
+
+        forward_backward_probs.append(norm_probs)
+    
+    return forward_backward_probs
+
+```
+
